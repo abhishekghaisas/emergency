@@ -304,7 +304,11 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid var(--calm); ou
       lines.push('EMERGENCY: ' + who + ' needs help now (' + time + '). Call me, and call 911 if I don’t answer.');
     }
     if (store.address) lines.push('Address: ' + store.address);
-    if (loc) lines.push('Location: https://maps.apple.com/?ll=' + loc.lat.toFixed(6) + ',' + loc.lng.toFixed(6) + '&q=Emergency (±' + loc.acc + ' m)');
+    if (loc) {
+      var ll = loc.lat.toFixed(6) + ',' + loc.lng.toFixed(6);
+      lines.push('Location (accurate to about ' + loc.acc + ' m): https://www.google.com/maps?q=' + ll);
+      lines.push('Coordinates: ' + loc.lat.toFixed(6) + ', ' + loc.lng.toFixed(6));
+    }
     else lines.push('Location unavailable.');
     return lines.join('\n');
   }
