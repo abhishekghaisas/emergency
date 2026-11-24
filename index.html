@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Alert">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Family Alert</title>
+<style>
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #eef1f4;
+  --surface: #ffffff;
+  --ink: #131a22;
+  --muted: #5a6675;
+  --line: #d3d9e0;
+  --alert: #d92d20;
+  --alert-ink: #ffffff;
+  --calm: #1b5fc1;
+  --ok: #157347;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1218;
+    --surface: #17202a;
+    --ink: #eef2f6;
+    --muted: #9aa6b4;
+    --line: #2b3745;
+    --alert: #f04438;
+    --calm: #6ea8ff;
+    --ok: #4cc38a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1218; --surface: #17202a; --ink: #eef2f6; --muted: #9aa6b4;
+  --line: #2b3745; --alert: #f04438; --calm: #6ea8ff; --ok: #4cc38a;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  margin: 0; min-height: 100%;
+  background: var(--bg); color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 17px; line-height: 1.45;
+  -webkit-tap-highlight-color: transparent;
+}
+main { max-width: 520px; margin: 0 auto; padding: 20px 18px 40px; }
+h1 { font-size: 1.15rem; font-weight: 700; margin: 0 0 2px; }
+.sub { color: var(--muted); font-size: .92rem; margin: 0 0 18px; }
+
+.modes { display: flex; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; margin-bottom: 22px; }
+.modes button { flex: 1; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: .95rem; padding: 10px 8px; border-radius: 9px; cursor: pointer; }
+.modes button[aria-pressed="true"] { background: var(--ink); color: var(--bg); font-weight: 600; }
+
+.stage { display: grid; place-items: center; margin: 8px 0 14px; }
+#panic {
+  --p: 0;
+  position: relative; width: min(78vw, 300px); aspect-ratio: 1; border-radius: 50%; border: 0; padding: 0;
+  background: conic-gradient(var(--alert) calc(var(--p) * 1%), color-mix(in srgb, var(--alert) 22%, var(--bg)) 0);
+  cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+#panic::before { content: ""; position: absolute; inset: 14px; border-radius: 50%; background: var(--alert); transition: transform .12s; }
+#panic:active::before, #panic.holding::before { transform: scale(.96); }
+#panic span { position: relative; color: var(--alert-ink); font-weight: 800; font-size: 1.7rem; letter-spacing: .01em; display: block; text-align: center; line-height: 1.15; }
+#panic small { display: block; font-weight: 500; font-size: .9rem; opacity: .9; margin-top: 6px; }
+#panic:focus-visible { outline: 3px solid var(--calm); outline-offset: 4px; }
+.hint { text-align: center; color: var(--muted); font-size: .9rem; margin: 0 0 20px; min-height: 1.4em; }
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.btn { display: block; width: 100%; text-align: center; text-decoration: none; font: inherit; font-weight: 600; padding: 15px 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.btn.primary { background: var(--calm); border-color: var(--calm); color: #fff; }
+:root[data-theme="dark"] .btn.primary { color: #0d1218; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: #0d1218; } }
+.btn:focus-visible, .modes button:focus-visible, summary:focus-visible { outline: 3px solid var(--calm); outline-offset: 2px; }
+
+#sent { display: none; background: var(--surface); border: 1px solid var(--ok); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+#sent.show { display: block; }
+#sent p { margin: 0 0 10px; }
+#sent strong { color: var(--ok); }
+
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px; }
+summary { padding: 14px 16px; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--muted); font-size: 1.3rem; line-height: 1; }
+details[open] summary::after { content: "–"; }
+.body { padding: 0 16px 16px; }
+label { display: block; font-size: .9rem; font-weight: 600; margin: 12px 0 5px; }
+.help { color: var(--muted); font-size: .85rem; margin: 3px 0 0; font-weight: 400; }
+input, textarea { width: 100%; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; }
+textarea { min-height: 84px; resize: vertical; }
+input:focus-visible, textarea:focus-visible { outline: 3px solid var(--calm); outline-offset: 1px; }
+.calls { margin-bottom: 14px; }
+.calls h2 { font-size: .95rem; font-weight: 700; margin: 0 0 8px; }
+.calls .btn { display: flex; justify-content: space-between; align-items: center; text-align: left; margin-bottom: 8px; }
+.calls .btn:last-child { margin-bottom: 0; }
+.calls .num { color: var(--muted); font-weight: 400; font-size: .9rem; }
+.script { white-space: pre-wrap; background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; padding: 12px; font-size: .95rem; margin: 10px 0; }
+.note { color: var(--muted); font-size: .85rem; text-align: center; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: .9rem; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.toast.show { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Family Alert</h1>
+  <p class="sub">Hold the button to text your family your location. Call 911 separately.</p>
+
+  <div class="modes" role="group" aria-label="Alert type">
+    <button type="button" id="mode-normal" aria-pressed="true">Need help</button>
+    <button type="button" id="mode-quiet" aria-pressed="false">Can’t talk</button>
+  </div>
+
+  <div class="stage">
+    <button type="button" id="panic" aria-label="Hold for 1.5 seconds to send emergency alert">
+      <span>HOLD<small>to alert family</small></span>
+    </button>
+  </div>
+  <p class="hint" id="hint" aria-live="polite"></p>
+
+  <div id="sent" role="status">
+    <p><strong>Alert ready.</strong> Messages should have opened with everyone added. Press send there.</p>
+    <a class="btn primary" id="resend" href="#">Open Messages again</a>
+  </div>
+
+  <div class="row">
+    <a class="btn" id="call911" href="tel:911">Call 911</a>
+    <a class="btn" id="text911" href="sms:911">Text 911</a>
+  </div>
+
+  <section class="calls" id="calls" hidden aria-label="Call family">
+    <h2>Call family</h2>
+    <div id="calllist"></div>
+  </section>
+
+  <details id="setup">
+    <summary>Set up contacts and details</summary>
+    <div class="body">
+      <label for="name">Your name</label>
+      <input id="name" autocomplete="name">
+
+      <label for="numbers">Who to alert and call</label>
+      <textarea id="numbers" placeholder="Mom +14255550101&#10;Dad +14255550102"></textarea>
+      <p class="help">One person per line: a name, then the number with country code. Put them in the order you want to call. Saved only on this device.</p>
+
+      <label for="address">Home address</label>
+      <input id="address" autocomplete="street-address">
+
+      <label for="entry">Entry and safety notes</label>
+      <textarea id="entry" placeholder="Gate code, which door is unlocked, dogs, where family is in the house"></textarea>
+
+      <label for="medical">Medical notes</label>
+      <textarea id="medical" placeholder="Allergies, medications, conditions"></textarea>
+    </div>
+  </details>
+
+  <details>
+    <summary>911 script</summary>
+    <div class="body">
+      <div class="script" id="script"></div>
+      <div class="row" style="margin-bottom:0">
+        <button type="button" class="btn" id="copy-script">Copy script</button>
+        <button type="button" class="btn" id="copy-text">Copy text-to-911</button>
+      </div>
+      <p class="help" style="margin-top:10px">Read the script to the dispatcher. If you can’t speak, text 911 and paste the short version. Text-to-911 isn’t available everywhere, and calling is better when you can.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Install on iPhone and Mac</summary>
+    <div class="body">
+      <p><strong>iPhone:</strong> open this page in Safari, tap Share, then Add to Home Screen. <strong>Mac:</strong> in Safari, choose File, then Add to Dock.</p>
+      <p>This page can’t make calls or send texts on its own. It opens Messages and Phone with everything filled in, and you press send. Cell service is required.</p>
+    </div>
+  </details>
+
+  <p class="note">Not a replacement for 911. If you’re in danger, call 911 first when it’s safe to do so.</p>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function () {
+  var HOLD_MS = 1500;
+  var KEYS = ['name', 'numbers', 'address', 'entry', 'medical'];
+  var mode = 'normal';
+  var store = {};
+
+  function load() {
+    try {
+      var raw = localStorage.getItem('family-alert');
+      if (raw) store = JSON.parse(raw) || {};
+    } catch (e) { store = {}; }
+  }
+  function save() {
+    try { localStorage.setItem('family-alert', JSON.stringify(store)); } catch (e) {}
+  }
+  function $(id) { return document.getElementById(id); }
+
+  function toast(msg) {
+    var t = $('toast'); t.textContent = msg; t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+
+  function contacts() {
+    var out = [];
+    var re = /\+?\d[\d\s().-]{5,}\d/g;
+    (store.numbers || '').split(/[\n;]+/).forEach(function (line) {
+      var found = line.match(re);
+      if (!found) return;
+      var name = found.length === 1 ? line.replace(found[0], '').replace(/^[\s:,\-–]+|[\s:,\-–]+$/g, '') : '';
+      found.forEach(function (raw) {
+        var n = raw.replace(/[^\d+]/g, '');
+        if (n.length >= 7) out.push({ name: name, tel: n, shown: raw.trim() });
+      });
+    });
+    return out;
+  }
+  function numbers() {
+    return contacts().map(function (c) { return c.tel; });
+  }
+  function renderCalls() {
+    var list = contacts();
+    var box = $('calllist');
+    box.textContent = '';
+    $('calls').hidden = list.length === 0;
+    list.forEach(function (c) {
+      var a = document.createElement('a');
+      a.className = 'btn';
+      a.href = 'tel:' + c.tel;
+      var left = document.createElement('span');
+      left.textContent = c.name ? 'Call ' + c.name : 'Call ' + c.shown;
+      var right = document.createElement('span');
+      right.className = 'num';
+      right.textContent = c.name ? c.shown : '';
+      a.appendChild(left); a.appendChild(right);
+      box.appendChild(a);
+    });
+  }
+
+  function buildScripts() {
+    var name = store.name || 'I';
+    var addr = store.address || '[your address]';
+    var entry = store.entry ? ' ' + store.entry : '';
+    var med = store.medical ? ' Medical: ' + store.medical : '';
+    var full = 'My name is ' + (store.name || '[name]') + '. I need police at ' + addr + '. Someone has broken into my home.' + entry + med + ' I will stay on the line.';
+    var short = 'EMERGENCY: break-in at ' + addr + '. Send police. Caller ' + (store.name || '[name]') + ' cannot talk.' + entry;
+    $('script').textContent = full;
+    return { full: full, short: short };
+  }
+
+  function refreshSetupState() {
+    var ok = numbers().length > 0;
+    $('hint').textContent = ok ? '' : 'Add at least one phone number in setup below.';
+    if (!ok) $('setup').open = true;
+    renderCalls();
+    var s = buildScripts();
+    $('text911').setAttribute('href', 'sms:911&body=' + encodeURIComponent(s.short));
+  }
+
+  function bindFields() {
+    KEYS.forEach(function (k) {
+      var el = $(k);
+      el.value = store[k] || '';
+      el.addEventListener('input', function () {
+        store[k] = el.value; save(); refreshSetupState();
+      });
+    });
+  }
+
+  function setMode(m) {
+    mode = m;
+    $('mode-normal').setAttribute('aria-pressed', m === 'normal');
+    $('mode-quiet').setAttribute('aria-pressed', m === 'quiet');
+  }
+
+  function getLocation() {
+    return new Promise(function (resolve) {
+      if (!navigator.geolocation) return resolve(null);
+      var done = false;
+      var timer = setTimeout(function () { if (!done) { done = true; resolve(null); } }, 5000);
+      navigator.geolocation.getCurrentPosition(function (p) {
+        if (done) return; done = true; clearTimeout(timer);
+        resolve({ lat: p.coords.latitude, lng: p.coords.longitude, acc: Math.round(p.coords.accuracy) });
+      }, function () {
+        if (done) return; done = true; clearTimeout(timer); resolve(null);
+      }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 30000 });
+    });
+  }
+
+  function buildMessage(loc) {
+    var who = store.name || 'Someone in your family';
+    var time = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    var lines = [];
+    if (mode === 'quiet') {
+      lines.push('EMERGENCY from ' + who + ' at ' + time + '. Cannot talk. Text only. Call 911 for me.');
+    } else {
+      lines.push('EMERGENCY: ' + who + ' needs help now (' + time + '). Call me, and call 911 if I don’t answer.');
+    }
+    if (store.address) lines.push('Address: ' + store.address);
+    if (loc) lines.push('Location: https://maps.apple.com/?ll=' + loc.lat.toFixed(6) + ',' + loc.lng.toFixed(6) + '&q=Emergency (±' + loc.acc + ' m)');
+    else lines.push('Location unavailable.');
+    return lines.join('\n');
+  }
+
+  function smsUrl(body) {
+    var nums = numbers().join(',');
+    return 'sms:/open?addresses=' + nums + '&body=' + encodeURIComponent(body);
+  }
+
+  var lastUrl = '';
+  async function fire() {
+    var list = numbers();
+    if (!list.length) { $('setup').open = true; toast('Add phone numbers first'); return; }
+    $('hint').textContent = 'Getting location…';
+    var loc = await getLocation();
+    lastUrl = smsUrl(buildMessage(loc));
+    $('resend').setAttribute('href', lastUrl);
+    $('sent').classList.add('show');
+    $('hint').textContent = loc ? '' : 'Sending without location.';
+    window.location.href = lastUrl;
+  }
+
+  // Hold-to-confirm
+  var btn = $('panic'), raf = 0, start = 0, armed = false;
+  function frame(t) {
+    var p = Math.min(100, ((t - start) / HOLD_MS) * 100);
+    btn.style.setProperty('--p', p);
+    if (p >= 100) { armed = false; btn.classList.remove('holding'); btn.style.setProperty('--p', 0); fire(); return; }
+    raf = requestAnimationFrame(frame);
+  }
+  function down(e) {
+    e.preventDefault();
+    if (armed) return;
+    armed = true; btn.classList.add('holding');
+    start = performance.now(); raf = requestAnimationFrame(frame);
+  }
+  function up() {
+    if (!armed) return;
+    armed = false; cancelAnimationFrame(raf);
+    btn.classList.remove('holding'); btn.style.setProperty('--p', 0);
+  }
+  btn.addEventListener('pointerdown', down);
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) { btn.addEventListener(ev, up); });
+  btn.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  btn.addEventListener('keydown', function (e) { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) down(e); });
+  btn.addEventListener('keyup', function (e) { if (e.key === ' ' || e.key === 'Enter') up(); });
+
+  function copy(text, done) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast(done); }, function () { toast('Copy failed'); });
+    } else { toast('Copy not supported'); }
+  }
+  $('copy-script').addEventListener('click', function () { copy(buildScripts().full, 'Script copied'); });
+  $('copy-text').addEventListener('click', function () { copy(buildScripts().short, 'Text copied'); });
+  $('mode-normal').addEventListener('click', function () { setMode('normal'); });
+  $('mode-quiet').addEventListener('click', function () { setMode('quiet'); });
+
+  load(); bindFields(); refreshSetupState();
+})();
+</script>
+</body>
+</html>
