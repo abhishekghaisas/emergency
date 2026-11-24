@@ -181,6 +181,7 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid var(--calm); ou
   </details>
 
   <p class="note">Not a replacement for 911. If you’re in danger, call 911 first when it’s safe to do so.</p>
+  <p class="note" id="offline"></p>
 </main>
 <div class="toast" id="toast" role="status"></div>
 
@@ -361,7 +362,23 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid var(--calm); ou
   $('mode-normal').addEventListener('click', function () { setMode('normal'); });
   $('mode-quiet').addEventListener('click', function () { setMode('quiet'); });
 
-  load(); bindFields(); refreshSetupState();
+  function setupOffline() {
+    var note = $('offline');
+    if (!('serviceWorker' in navigator)) { note.textContent = 'Offline use isn’t supported in this browser.'; return; }
+    try {
+      navigator.serviceWorker.register('sw.js').then(function () {
+        return navigator.serviceWorker.ready;
+      }).then(function () {
+        note.textContent = 'Saved for offline use on this device.';
+      }).catch(function () {
+        note.textContent = 'Offline copy not saved. Open this page once with a connection.';
+      });
+    } catch (e) {
+      note.textContent = 'Offline copy not saved.';
+    }
+  }
+
+  load(); bindFields(); refreshSetupState(); setupOffline();
 })();
 </script>
 </body>
