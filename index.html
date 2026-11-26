@@ -95,6 +95,10 @@ label { display: block; font-size: .9rem; font-weight: 600; margin: 12px 0 5px; 
 input, textarea { width: 100%; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; }
 textarea { min-height: 84px; resize: vertical; }
 input:focus-visible, textarea:focus-visible { outline: 3px solid var(--calm); outline-offset: 1px; }
+.steps { padding-left: 1.25em; margin: 0 0 14px; }
+.steps li { margin-bottom: 8px; }
+.sat-list .btn { margin-bottom: 8px; }
+.btn:disabled { opacity: .6; cursor: default; }
 .calls { margin-bottom: 14px; }
 .calls h2 { font-size: .95rem; font-weight: 700; margin: 0 0 8px; }
 .calls .btn { display: flex; justify-content: space-between; align-items: center; text-align: left; margin-bottom: 8px; }
@@ -133,11 +137,28 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid var(--calm); ou
     <a class="btn" id="call911" href="tel:911">Call 911</a>
     <a class="btn" id="text911" href="sms:911">Text 911</a>
   </div>
+  <p class="note" style="margin:-4px 0 16px">Text 911 is for when you can’t talk safely. If you get a “not delivered” reply, call instead. Please don’t send test texts.</p>
 
   <section class="calls" id="calls" hidden aria-label="Call family">
     <h2>Call family</h2>
     <div id="calllist"></div>
   </section>
+
+  <details id="sat">
+    <summary>No signal? Satellite mode</summary>
+    <div class="body">
+      <ol class="steps">
+        <li>Go outside with a clear view of the sky and horizon.</li>
+        <li><strong>In an emergency, try Call 911 first.</strong> With no coverage, iPhone offers Emergency SOS via satellite. Follow its prompts. Don’t use Messages for emergencies.</li>
+        <li>To reach family, tap <em>Prepare satellite alerts</em>. Satellite can’t send group messages, so you send one message per person.</li>
+        <li>When Messages offers to connect to a satellite, tap it and point your phone as shown.</li>
+        <li>Each message can take 30 seconds or more. Wait for each to send before the next.</li>
+      </ol>
+      <button type="button" class="btn primary" id="sat-prepare">Prepare satellite alerts</button>
+      <div class="sat-list" id="sat-list" style="margin-top:12px"></div>
+      <p class="help">Needs iPhone 14 or later and iMessage turned on before you lose coverage. Try the practice mode in Settings, Apps, Messages, Satellite Connection Demo.</p>
+    </div>
+  </details>
 
   <details id="setup">
     <summary>Set up contacts and details</summary>
@@ -355,6 +376,27 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid var(--calm); ou
   btn.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   btn.addEventListener('keydown', function (e) { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) down(e); });
   btn.addEventListener('keyup', function (e) { if (e.key === ' ' || e.key === 'Enter') up(); });
+
+  async function prepareSat() {
+    var list = contacts();
+    var box = $('sat-list');
+    var b = $('sat-prepare');
+    box.textContent = '';
+    if (!list.length) { $('setup').open = true; toast('Add contacts first'); return; }
+    b.disabled = true; b.textContent = 'Getting location…';
+    var loc = await getLocation();
+    b.disabled = false; b.textContent = 'Prepare satellite alerts';
+    var body = buildMessage(loc);
+    list.forEach(function (c) {
+      var a = document.createElement('a');
+      a.className = 'btn';
+      a.href = 'sms:/open?addresses=' + c.tel + '&body=' + encodeURIComponent(body);
+      a.textContent = 'Message ' + (c.name || c.shown);
+      box.appendChild(a);
+    });
+    if (!loc) toast('No location. Messages will go without it');
+  }
+  $('sat-prepare').addEventListener('click', prepareSat);
 
   function copy(text, done) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
