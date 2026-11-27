@@ -96,6 +96,12 @@ input, textarea { width: 100%; font: inherit; color: var(--ink); background: var
 textarea { min-height: 84px; resize: vertical; }
 input:focus-visible, textarea:focus-visible { outline: 3px solid var(--calm); outline-offset: 1px; }
 .steps { padding-left: 1.25em; margin: 0 0 14px; }
+.steps.bul { list-style: disc; }
+.guide { background: var(--bg); margin-bottom: 8px; }
+.guide summary { font-size: .98rem; padding: 12px 14px; }
+.guide .body { padding: 0 14px 12px; }
+.guide h3 { font-size: .9rem; margin: 10px 0 6px; }
+.urgent { font-weight: 700; margin: 0 0 8px; }
 .steps li { margin-bottom: 8px; }
 .sat-list .btn { margin-bottom: 8px; }
 .btn:disabled { opacity: .6; cursor: default; }
@@ -143,6 +149,116 @@ input:focus-visible, textarea:focus-visible { outline: 3px solid var(--calm); ou
     <h2>Call family</h2>
     <div id="calllist"></div>
   </section>
+
+  <details id="guides">
+    <summary>Safety guidelines</summary>
+    <div class="body">
+      <p class="help" style="margin-top:0">Read these together as a family before you need them. They are general guidance drawn from public safety agencies, not a substitute for 911 or professional advice.</p>
+
+      <details class="guide">
+        <summary>Break-in: someone is inside</summary>
+        <div class="body">
+          <p class="urgent">Get safe first, then get help.</p>
+          <ol class="steps">
+            <li>If there’s a clear path out, leave and call 911 once you’re safe. If not, go to a room you can lock, or block the door with heavy furniture.</li>
+            <li>Call 911. Give your address, say someone is in your home, and say where in the house you are. Speak quietly.</li>
+            <li>If it isn’t safe to talk, tell the dispatcher. They can keep listening. Where available, text 911 instead.</li>
+            <li>Stay on the line and stay put until police tell you it’s safe. Confirm it’s really police before opening the door.</li>
+            <li>After you’ve called 911, quietly alert family. Use <em>Can’t talk</em> mode so phones don’t ring.</li>
+            <li>Don’t confront the intruder. Fighting is a last resort. Never open the door to a stranger. Say through the door that you’re calling the police.</li>
+          </ol>
+          <h3>Plan ahead</h3>
+          <ul class="steps bul">
+            <li>Pick a safe room with a sturdy door, and keep a charged phone and a spare power bank there.</li>
+            <li>Assign roles: one person calls 911, another helps children get to the safe room.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="guide">
+        <summary>Burglary: signs of entry when you get home</summary>
+        <div class="body">
+          <ol class="steps">
+            <li>If you see a broken window, a forced door or other signs of entry, don’t go in. The burglar may still be inside.</li>
+            <li>Move to a safe spot, such as your car or a neighbor’s home, and call 911 from there.</li>
+            <li>Note anything you saw, heard or smelled, like an unfamiliar vehicle or the smell of smoke.</li>
+            <li>Wait for police to clear the house. Ask the officer before cleaning up or moving anything.</li>
+            <li>Make a list of what’s missing and get a copy of the police report number for insurance.</li>
+            <li>If keys, phones, wallets or documents were taken, change locks and passwords and contact your bank. See <em>Hacked account</em> below.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="guide">
+        <summary>Power outage</summary>
+        <div class="body">
+          <ol class="steps">
+            <li>Keep the fridge and freezer closed. A closed fridge keeps food cold for about 4 hours, and a full freezer for about 48 hours.</li>
+            <li>Throw out perishable food that has been at 40°F or warmer for 2 hours or more. When in doubt, throw it out.</li>
+            <li><strong>Carbon monoxide:</strong> use a generator, camp stove or charcoal grill only outdoors, at least 20 feet from windows, doors and garages. Never heat the home with a gas stove or oven.</li>
+            <li>Keep phones charged. Use text and Wi-Fi Calling if cell service is weak. Save battery.</li>
+            <li>If the home gets dangerously hot or cold, go somewhere safe. Check on neighbors if it’s safe to do so.</li>
+            <li>Check on anyone who relies on powered medical equipment, and talk to a pharmacist about refrigerated medicine.</li>
+          </ol>
+          <h3>Plan ahead</h3>
+          <ul class="steps bul">
+            <li>Battery-backed carbon monoxide detectors on every level.</li>
+            <li>Flashlights, a battery or hand-crank radio, first-aid supplies and medicine.</li>
+            <li>A battery backup for your modem and router, so Wi-Fi Calling still works.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="guide">
+        <summary>Hacked account or identity theft</summary>
+        <div class="body">
+          <ol class="steps">
+            <li>Change the password on the hacked account, and on any account that used the same password. Start with email and banking. If you can’t log in, use the service’s account recovery.</li>
+            <li>Turn on two-step verification everywhere it’s offered. Use a unique password for each account, ideally with a password manager.</li>
+            <li>Check for messages you didn’t send, unknown logins, new devices and new contacts. Tell your contacts not to click anything from you.</li>
+            <li>Make sure your device’s security software is up to date.</li>
+            <li>If money or personal data may be involved, call your bank or card company and ask them to freeze or close affected accounts.</li>
+            <li>Report identity theft at IdentityTheft.gov, or call 1-877-438-4338, to get a personal recovery plan. Consider a fraud alert or credit freeze, and review your credit reports.</li>
+            <li>File a police report if appropriate.</li>
+          </ol>
+          <a class="btn" href="https://www.identitytheft.gov" target="_blank" rel="noopener">IdentityTheft.gov</a>
+        </div>
+      </details>
+
+      <details class="guide">
+        <summary>House fire</summary>
+        <div class="body">
+          <p class="urgent">Get out, stay out, then call 911.</p>
+          <ol class="steps">
+            <li>When the smoke alarm sounds, leave immediately. Don’t stop for belongings or pets.</li>
+            <li>If there’s smoke, get low and crawl under it. Feel closed doors before opening them, and don’t open a hot one. Use your second way out.</li>
+            <li>Close doors behind you to slow the fire.</li>
+            <li>Go to your meeting place outside and call 911 from there or from a neighbor’s phone. Never go back in. If someone is missing, tell the dispatcher.</li>
+            <li>If you’re trapped: close the door, block gaps with towels or cloth, call 911 with your exact location, and signal from a window with a light cloth or flashlight.</li>
+          </ol>
+          <h3>Plan ahead</h3>
+          <ul class="steps bul">
+            <li>Smoke alarms on every level and near bedrooms. Two ways out of every room. Practice twice a year.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="guide">
+        <summary>Earthquake</summary>
+        <div class="body">
+          <p class="urgent">Drop, Cover and Hold On.</p>
+          <ol class="steps">
+            <li>Drop onto your hands and knees. Cover your head and neck, under a sturdy table if one is close. Hold on until the shaking stops. If the table moves, move with it.</li>
+            <li>Stay inside and away from windows, bookcases and anything that could fall. Don’t run outside during shaking.</li>
+            <li>In bed: stay there, face down, and cover your head with a pillow. In a car: pull over, stop and stay inside, away from bridges and power lines.</li>
+            <li>Afterwards, check for injuries, expect aftershocks, and stay away from downed power lines.</li>
+            <li>If you smell gas or hear hissing, open a window, leave the building and shut off the main gas valve outside.</li>
+            <li>Use the phone only for life-threatening emergencies. Text instead of calling when you can. Contact your out-of-area family contact.</li>
+          </ol>
+        </div>
+      </details>
+    </div>
+  </details>
 
   <details id="sat">
     <summary>No signal? Satellite mode</summary>
