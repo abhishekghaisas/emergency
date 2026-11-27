@@ -1,6 +1,6 @@
 // Family Alert service worker: saves the app on the device so it opens with no signal.
 // Bump CACHE when you want every device to drop the old copy.
-const CACHE = 'family-alert-v8';
+const CACHE = 'family-alert-v9';
 const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', (event) => {
